@@ -1,4 +1,7 @@
 const Task = require("../models/Task");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // 1) Create Task
 exports.createTask = async (req, res) => {
@@ -91,11 +94,23 @@ exports.markCompleted = async (req, res) => {
 
     if (!task) return res.status(404).json({ message: "Task not found" });
 
+    // notify assignee if online
+    const assigneeId = task.assignee?.toString();
+    if (assigneeId && global.io && global.onlineUsers[assigneeId]) {
+      global.io.to(global.onlineUsers[assigneeId]).emit("task:updated", {
+        message: "A task assigned to you was marked as completed",
+        taskId: task._id,
+        title: task.title,
+        status: task.status,
+      });
+    }
+
     res.json(task);
   } catch (err) {
     res.status(500).json({ message: "Failed to mark completed", error: err.message });
   }
 };
+
 
 // 6) Assign task to another user
 exports.assignTask = async (req, res) => {
@@ -115,11 +130,22 @@ exports.assignTask = async (req, res) => {
 
     if (!task) return res.status(404).json({ message: "Task not found" });
 
+    // Real-time notification
+    if (global.io && global.onlineUsers && global.onlineUsers[assigneeId]) {
+      global.io.to(global.onlineUsers[assigneeId]).emit("task:assigned", {
+        message: "A new task has been assigned to you",
+        taskId: task._id,
+        title: task.title,
+        status: task.status,
+      });
+    }
+
     res.json(task);
   } catch (err) {
     res.status(500).json({ message: "Failed to assign task", error: err.message });
   }
 };
+
 
 // 7) Delete task
 exports.deleteTask = async (req, res) => {
@@ -132,5 +158,34 @@ exports.deleteTask = async (req, res) => {
     res.json({ message: "Task deleted" });
   } catch (err) {
     res.status(500).json({ message: "Failed to delete task", error: err.message });
+  }
+};
+
+//8 AI description generator using OpenAI
+
+exports.generateDescription = async (req, res) => {
+  try {
+    const { title } = req.body;
+
+    if (!title) {
+      return res.status(400).json({ message: "Title is required for AI generation" });
+    }
+
+    // v1 model name exactly like this:
+    const model = genAI.getGenerativeModel({ model:"gemini-1.0-pro"});
+
+    const prompt = `Write a detailed task description for: "${title}". 
+    Make it clear, professional and helpful for developers.`
+
+    const result = await model.generateContent(prompt);
+
+    const description = result.response.text();
+
+    res.json({ description });
+  } catch (err) {
+    res.status(500).json({
+      message: "AI generation failed",
+      error: err.message,
+    });
   }
 };
