@@ -1,0 +1,136 @@
+const Task = require("../models/Task");
+
+// 1) Create Task
+exports.createTask = async (req, res) => {
+  try {
+    const { title, description, dueDate, teamId, assigneeId } = req.body;
+
+    if (!title) {
+      return res.status(400).json({ message: "Title is required" });
+    }
+
+    const task = await Task.create({
+      title,
+      description,
+      dueDate,
+      team: teamId || null,
+      assignee: assigneeId || null,
+      createdBy: req.user._id
+    });
+
+    res.status(201).json(task);
+  } catch (err) {
+    res.status(500).json({ message: "Task creation failed", error: err.message });
+  }
+};
+
+// 2) Get tasks assigned to logged-in user (+ filter + search)
+exports.getMyTasks = async (req, res) => {
+  try {
+    const { status, search } = req.query;
+
+    const query = { assignee: req.user._id };
+
+    if (status) query.status = status;
+
+    if (search) {
+      query.$or = [
+        { title: new RegExp(search, "i") },
+        { description: new RegExp(search, "i") }
+      ];
+    }
+
+    const tasks = await Task.find(query).sort({ createdAt: -1 });
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch tasks", error: err.message });
+  }
+};
+
+// 3) Get single task (for detail view)
+exports.getTaskById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const task = await Task.findById(id);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    res.json(task);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch task", error: err.message });
+  }
+};
+
+// 4) Update task (title/description/dueDate/status etc.)
+exports.updateTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updated = await Task.findByIdAndUpdate(id, req.body, {
+      new: true
+    });
+
+    if (!updated) return res.status(404).json({ message: "Task not found" });
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Task update failed", error: err.message });
+  }
+};
+
+// 5) Mark as completed
+exports.markCompleted = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const task = await Task.findByIdAndUpdate(
+      id,
+      { status: "completed" },
+      { new: true }
+    );
+
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    res.json(task);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to mark completed", error: err.message });
+  }
+};
+
+// 6) Assign task to another user
+exports.assignTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { assigneeId } = req.body;
+
+    if (!assigneeId) {
+      return res.status(400).json({ message: "assigneeId is required" });
+    }
+
+    const task = await Task.findByIdAndUpdate(
+      id,
+      { assignee: assigneeId },
+      { new: true }
+    );
+
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    res.json(task);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to assign task", error: err.message });
+  }
+};
+
+// 7) Delete task
+exports.deleteTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deleted = await Task.findByIdAndDelete(id);
+    if (!deleted) return res.status(404).json({ message: "Task not found" });
+
+    res.json({ message: "Task deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete task", error: err.message });
+  }
+};
