@@ -1,7 +1,12 @@
-const Task = require("../models/Task");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const Task = require("../models/Task");
+const OpenAI = require("openai");
+
+const groq = new OpenAI({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1",
+});
+
 
 // 1) Create Task
 exports.createTask = async (req, res) => {
@@ -163,27 +168,42 @@ exports.deleteTask = async (req, res) => {
 
 //8 AI description generator using OpenAI
 
-exports.generateDescription = async (req, res) => {
+// 11) Generate Task Description via Groq
+exports.generateTaskDescription = async (req, res) => {
   try {
     const { title } = req.body;
 
     if (!title) {
-      return res.status(400).json({ message: "Title is required for AI generation" });
+      return res.status(400).json({ message: "Title is required" });
     }
 
-    // v1 model name exactly like this:
-    const model = genAI.getGenerativeModel({ model:"gemini-1.0-pro"});
+    const prompt = `You are a senior backend engineer helping a team manage tasks.
 
-    const prompt = `Write a detailed task description for: "${title}". 
-    Make it clear, professional and helpful for developers.`
+Generate a clear, detailed, and professional task description for developers.
 
-    const result = await model.generateContent(prompt);
+Task title: "${title}"
 
-    const description = result.response.text();
+The description should include:
+- What needs to be done (objective)
+- Key steps or sub-tasks
+- Expected outcome
+- Any constraints, edge cases, or testing notes.
 
-    res.json({ description });
+Write it as a single well-structured paragraph or 3 to 6 bullet points, no extra chit-chat.`;
+
+    const response = await groq.responses.create({
+      model: "llama-3.3-70b-versatile",
+      input: prompt,
+    });
+
+    const description =
+      (response.output_text && response.output_text.trim()) ||
+      "No description generated.";
+
+    return res.json({ description });
   } catch (err) {
-    res.status(500).json({
+    console.error("Groq AI error:", err);
+    return res.status(500).json({
       message: "AI generation failed",
       error: err.message,
     });
