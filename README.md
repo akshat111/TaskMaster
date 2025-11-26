@@ -66,3 +66,34 @@ This backend is built using **Node.js, Express, MongoDB, JWT, Socket.io, Multer,
 
 # 📂 Folder Structure
 
+TaskMaster/
+│── src/
+│ ├── controllers/
+│ │ ├── auth.controller.js
+│ │ ├── task.controller.js
+│ │ ├── team.controller.js
+│ │ └── comment.controller.js
+│ │
+│ ├── middleware/
+│ │ └── auth.js
+│ │
+│ ├── models/
+│ │ ├── User.js
+│ │ ├── Task.js
+│ │ ├── Team.js
+│ │ ├── Comment.js
+│ │ └── Attachment.js
+│ │
+│ ├── routes/
+│ │ ├── auth.routes.js
+│ │ ├── task.routes.js
+│ │ ├── team.routes.js
+│ │ └── comment.routes.js
+│ │
+│ ├── app.js
+│ └── server.js
+│
+├── uploads/ (auto-created for attachments)
+├── .env
+├── package.json
+└── README.md
