@@ -10,42 +10,49 @@ This backend is built using **Node.js, Express, MongoDB, JWT, Socket.io, Multer,
 ## 🔥 Key Features
 
 ### ✅ **User Authentication**
+
 - Register, login, logout
 - JWT-based authentication
 - Password hashing with bcrypt
 - User profile fetch & update
 
 ### 📝 **Task Management**
-- Create, update, delete tasks  
-- View tasks assigned to logged-in user  
-- Mark tasks as completed  
-- Assign tasks to team members  
-- Task filtering (status)  
-- Task search (title & description)  
+
+- Create, update, delete tasks
+- View tasks assigned to logged-in user
+- Mark tasks as completed
+- Assign tasks to team members
+- Task filtering (status)
+- Task search (title & description)
 
 ### 👥 **Teams / Projects**
-- Create teams/projects  
-- Invite team members  
+
+- Create teams/projects
+- Invite team members
 - Team ownership safety
 
 ### 💬 **Comments**
-- Add comments to tasks  
+
+- Add comments to tasks
 - Fetch all comments for a task
 
 ### 📎 **Attachments**
-- Upload file attachments for tasks  
-- Multer-based file handling  
+
+- Upload file attachments for tasks
+- Multer-based file handling
 - File reference stored in DB
 
 ### 🤖 **AI Task Description Generator**
-- Uses **Groq API (OpenAI-compatible)**  
-- Auto-generates detailed task descriptions from title  
+
+- Uses **Groq API (OpenAI-compatible)**
+- Auto-generates detailed task descriptions from title
 - Endpoint: `/api/tasks/generate`
 
 ### 🔔 **Real-Time Notifications (Socket.io)**
+
 - Notify users when:
-  - A task is assigned to them  
-  - A task is marked completed  
+  - A task is assigned to them
+  - A task is marked completed
 - Tracks online users via socket IDs
 
 ---
@@ -100,23 +107,23 @@ TaskMaster/
 └── README.md
 ```
 
-
-
-
 # ⚙️ **Setup Instructions**
 
 ### 1️⃣ Clone Repository
+
 ```
 git clone https://github.com/akshat111/TaskMaster.git
 cd TaskMaster
 ```
 
 2️⃣ Install Dependencies
+
 ```
 npm install
 ```
 
 3️⃣ Create a .env File
+
 ```
 PORT=3000
 MONGO_URI=your_mongodb_url_here
@@ -129,6 +136,7 @@ GROQ_API_KEY=your_groq_api_key
 
 🔌 API Endpoints Overview
 🔐 Auth Endpoints
+
 ```
 | Method | Endpoint             | Description     |
 | ------ | -------------------- | --------------- |
@@ -139,6 +147,7 @@ GROQ_API_KEY=your_groq_api_key
 ```
 
 📝 Task Endpoints
+
 ```
 | Method | Endpoint                  | Description                       |
 | ------ | ------------------------- | --------------------------------- |
@@ -153,6 +162,7 @@ GROQ_API_KEY=your_groq_api_key
 ```
 
 👥 Team Endpoints
+
 ```
 | Method | Endpoint                | Description               |
 | ------ | ----------------------- | ------------------------- |
@@ -162,6 +172,7 @@ GROQ_API_KEY=your_groq_api_key
 ```
 
 💬 Comment Endpoints
+
 ```
 | Method | Endpoint                | Description           |
 | ------ | ----------------------- | --------------------- |
@@ -170,6 +181,7 @@ GROQ_API_KEY=your_groq_api_key
 ```
 
 📎 Attachment Endpoint
+
 ```
 | Method | Endpoint                   | Description               |
 | ------ | -------------------------- | ------------------------- |
@@ -184,11 +196,12 @@ Model: llama-3.3-70b-versatile
 
 Endpoint: /api/tasks/generate
 
-Input:
----
-  "title": "Implement role-based access control"
+## Input:
+
+"title": "Implement role-based access control"
 
 ---
+
 🔔 Real-Time Notifications
 
 Socket.io is used to push notifications when:
@@ -200,6 +213,7 @@ A task is completed
 Online users are tracked via their socket ID, enabling direct notifications.
 
 ---
+
 📌 Notes
 
 Attachments are stored locally inside /uploads
@@ -211,6 +225,7 @@ Codebase follows modular MVC structure
 This repository contains backend only
 
 ---
+
 🎉 Conclusion
 
 TaskMaster is a fully functional backend system designed for real-world team collaboration with:
@@ -232,6 +247,7 @@ AI-assisted workflows
 Feel free to fork, clone, or use the architecture as reference for your own project!
 
 ---
+
 Built with ❤️ by Akshat Kumar and ChatGPT.
 
 ---
